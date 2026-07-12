@@ -1,0 +1,13 @@
+{
+  "name": "LicitIA Startup Funding & Valuation",
+  "short_name": "LicitIA Funding",
+  "description": "Calculadora de capital requerido, burn rate, runway, uso de fondos, valuación First Chicago y dilución.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

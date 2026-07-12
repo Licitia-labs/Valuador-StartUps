@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Calculadora para estimar el capital requerido, burn rate, runway, uso de fondos, valuación First Chicago y dilución de una startup.">
+  <title>LicitIA Startup Funding & Valuation</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="LicitIA Startup Funding & Valuation">
+      <img src="assets/icon.svg" alt="" width="42" height="42">
+      <span>
+        <strong>LicitIA Labs</strong>
+        <small>Startup Funding & Valuation</small>
+      </span>
+    </a>
+    <nav class="top-actions" aria-label="Acciones principales">
+      <button class="button button-ghost" id="saveButton" type="button">Guardar</button>
+      <button class="button button-ghost" id="loadButton" type="button">Recuperar</button>
+      <button class="button button-primary" id="printButton" type="button">Imprimir reporte</button>
+    </nav>
+  </header>
+
+  <main id="inicio">
+
+  <section class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Capital requerido + First Chicago</p>
+        <h1>Define cuánto capital necesitas antes de decidir cuánto equity ceder.</h1>
+        <p class="hero-text">Construye una ronda basada en burn rate, runway, ingresos, uso de fondos e hitos; después contrástala con la valuación de tu startup.</p>
+      </div>
+      <aside class="hero-note" aria-label="Alcance del modelo">
+        <strong>Versión local para revisión</strong>
+        <p>El modelo es orientativo. No sustituye una revisión financiera, fiscal, legal ni una negociación de inversión.</p>
+      </aside>
+    </section>
+
+    <section class="shell workflow" aria-label="Flujo de la calculadora">
+      <article><span>1</span><div><strong>Capital requerido</strong><small>Burn rate, runway y uso de fondos</small></div></article>
+      <article><span>2</span><div><strong>Valuación</strong><small>Tres escenarios First Chicago</small></div></article>
+      <article><span>3</span><div><strong>Ronda</strong><small>Dilución y consistencia financiera</small></div></article>
+    </section>
+
+    <section class="shell panel identity-panel">
+      <div class="section-heading">
+        <div>
+          <p class="step">Proyecto</p>
+          <h2>Datos generales</h2>
+        </div>
+        <button class="text-button" id="resetButton" type="button">Restablecer ejemplo</button>
+      </div>
+      <div class="form-grid form-grid-3">
+        <label class="field">
+          <span>Nombre de la startup</span>
+          <input id="startupName" type="text" value="Mi Startup" maxlength="80" autocomplete="organization">
+        </label>
+        <label class="field">
+          <span>Modelo de negocio</span>
+          <select id="businessModel">
+            <option value="saas">SaaS</option>
+            <option value="fintech" selected>Fintech / Payments</option>
+            <option value="marketplace">Marketplace</option>
+            <option value="general">Negocio general</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Moneda</span>
+          <select id="currency">
+            <option value="MXN" selected>MXN - Peso mexicano</option>
+            <option value="USD">USD - Dólar estadounidense</option>
+            <option value="EUR">EUR - Euro</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="shell module-header" id="capital">
+      <div>
+        <p class="step">Módulo de planeación financiera</p>
+        <h2>1. ¿Cuánto capital necesita realmente la startup?</h2>
+      </div>
+      <p>Calcula el efectivo necesario para operar durante el horizonte seleccionado y cumplir los hitos de la ronda.</p>
+    </section>
+
+    <section class="shell module-grid">
+      <form class="panel calculator-panel" id="calculatorForm" novalidate>
+        <div class="subsection-heading">
+          <div>
+            <span class="section-number">A</span>
+            <div><h3>Horizonte y fuentes disponibles</h3><p>Define el periodo que debe financiar la ronda.</p></div>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-3">
+          <label class="field">
+            <span>Horizonte financiero</span>
+            <div class="input-suffix"><input id="runwayMonths" type="number" min="1" max="60" step="1" value="18"><em>meses</em></div>
+          </label>
+          <label class="field">
+            <span>Efectivo disponible</span>
+            <input id="cashAvailable" type="number" min="0" step="1000" value="500000">
+          </label>
+          <label class="field">
+            <span>Capital ya comprometido</span>
+            <input id="committedCapital" type="number" min="0" step="1000" value="0">
+            <small>Aportaciones de socios, grants o deuda ya confirmada.</small>
+          </label>
+          <label class="field">
+            <span>Ingresos mensuales actuales</span>
+            <input id="monthlyRevenue" type="number" min="0" step="1000" value="100000">
+          </label>
+          <label class="field">
+            <span>Crecimiento mensual de ingresos</span>
+            <div class="input-suffix"><input id="monthlyRevenueGrowth" type="number" min="-100" max="100" step="0.1" value="5"><em>%</em></div>
+          </label>
+          <label class="field">
+            <span>Reserva de contingencia</span>
+            <div class="input-suffix"><input id="contingencyRate" type="number" min="0" max="100" step="0.5" value="12"><em>%</em></div>
+          </label>
+        </div>
+
+        <div class="subsection-heading divided">
+          <div>
+            <span class="section-number">B</span>
+            <div><h3>Gastos mensuales</h3><p>Costos recurrentes necesarios para mantener la operación.</p></div>
+          </div>
+          <span class="live-total">Total mensual: <strong id="monthlyCostLive">$0</strong></span>
+        </div>
+
+        <div class="form-grid form-grid-3">
+          <label class="field"><span>Nómina y equipo</span><input id="payrollMonthly" type="number" min="0" step="1000" value="180000"></label>
+          <label class="field"><span>Tecnología y operación</span><input id="technologyMonthly" type="number" min="0" step="1000" value="45000"></label>
+          <label class="field"><span>Marketing y ventas</span><input id="marketingMonthly" type="number" min="0" step="1000" value="50000"></label>
+          <label class="field"><span>Administración</span><input id="adminMonthly" type="number" min="0" step="1000" value="35000"></label>
+          <label class="field"><span>Otros gastos mensuales</span><input id="otherMonthly" type="number" min="0" step="1000" value="15000"></label>
+        </div>
+
+        <div class="subsection-heading divided">
+          <div>
+            <span class="section-number">C</span>
+            <div><h3>Inversiones no recurrentes</h3><p>Desembolsos necesarios para alcanzar los hitos de la ronda.</p></div>
+          </div>
+          <span class="live-total">Total inicial: <strong id="oneTimeCostLive">$0</strong></span>
+        </div>
+
+        <div class="form-grid form-grid-3">
+          <label class="field"><span>Producto y desarrollo</span><input id="productInvestment" type="number" min="0" step="1000" value="600000"></label>
+          <label class="field"><span>Contratación y onboarding</span><input id="hiringInvestment" type="number" min="0" step="1000" value="250000"></label>
+          <label class="field"><span>Lanzamiento comercial</span><input id="launchMarketing" type="number" min="0" step="1000" value="300000"></label>
+          <label class="field"><span>Legal, fiscal o regulatorio</span><input id="legalInvestment" type="number" min="0" step="1000" value="150000"></label>
+          <label class="field"><span>Equipo e infraestructura</span><input id="infrastructureInvestment" type="number" min="0" step="1000" value="100000"></label>
+          <label class="field"><span>Otros desembolsos</span><input id="otherInvestment" type="number" min="0" step="1000" value="0"></label>
+        </div>
+
+        <div class="subsection-heading divided">
+          <div>
+            <span class="section-number">D</span>
+            <div><h3>Hitos que financiará la ronda</h3><p>Convierte el monto solicitado en una narrativa verificable.</p></div>
+          </div>
+        </div>
+
+        <div class="milestone-grid">
+          <label class="milestone-field">
+            <span>Hito 1</span>
+            <input id="milestone1" type="text" value="Lanzar MVP y validar la propuesta con clientes" maxlength="110">
+            <div class="input-suffix"><input id="milestoneMonth1" type="number" min="1" max="60" value="4"><em>mes</em></div>
+          </label>
+          <label class="milestone-field">
+            <span>Hito 2</span>
+            <input id="milestone2" type="text" value="Demostrar tracción comercial y repetibilidad" maxlength="110">
+            <div class="input-suffix"><input id="milestoneMonth2" type="number" min="1" max="60" value="9"><em>mes</em></div>
+          </label>
+          <label class="milestone-field">
+            <span>Hito 3</span>
+            <input id="milestone3" type="text" value="Preparar métricas y gobierno para la siguiente ronda" maxlength="110">
+            <div class="input-suffix"><input id="milestoneMonth3" type="number" min="1" max="60" value="15"><em>mes</em></div>
+          </label>
+        </div>
+      </form>
+
+      <aside class="results-column" aria-label="Resultado de capital requerido">
+        <section class="panel results-panel funding-results">
+          <div class="section-heading">
+            <div><p class="step">Resultado financiero</p><h2>Ronda objetivo</h2></div>
+            <span class="model-badge">Capital requerido</span>
+          </div>
+
+          <article class="hero-kpi">
+            <span>Ronda objetivo recomendada</span>
+            <strong id="targetRaiseValue">$0</strong>
+            <small id="targetRaiseNote">Monto redondeado para cubrir la planeación.</small>
+          </article>
+
+          <div class="kpi-grid compact-kpis">
+            <article class="kpi"><span>Capital mínimo</span><strong id="capitalRequiredValue">$0</strong></article>
+            <article class="kpi"><span>Burn rate neto actual</span><strong id="netBurnValue">$0</strong></article>
+            <article class="kpi"><span>Runway con efectivo actual</span><strong id="runwayValue">0 meses</strong></article>
+            <article class="kpi"><span>Ingresos proyectados</span><strong id="projectedRevenueValue">$0</strong></article>
+          </div>
+
+          <div class="health-card" id="fundingHealthCard">
+            <div><span class="health-label">Lectura financiera</span><strong id="fundingHealthTitle">Calculando...</strong></div>
+            <p id="fundingHealthText"></p>
+          </div>
+
+          <div class="insight-list boxed-list">
+            <div><dt>Usos totales</dt><dd id="totalUsesValue">$0</dd></div>
+            <div><dt>Ingresos + recursos disponibles</dt><dd id="totalOffsetsValue">$0</dd></div>
+            <div><dt>Ingreso mensual al final</dt><dd id="endingRevenueValue">$0</dd></div>
+            <div><dt>Mes estimado de break-even</dt><dd id="breakEvenValue">—</dd></div>
+          </div>
+        </section>
+
+        <section class="panel use-panel">
+          <div class="chart-heading"><h3>Uso del capital</h3><small>Distribución de egresos</small></div>
+          <div id="useOfFundsBars" class="fund-bars"></div>
+        </section>
+
+        <section class="panel milestones-summary">
+          <div class="chart-heading"><h3>Hitos financiados</h3><small id="milestoneHorizon">18 meses</small></div>
+          <ol id="milestoneSummary"></ol>
+        </section>
+      </aside>
+    </section>
+
+    <section class="shell module-header" id="valuacion">
+      <div>
+        <p class="step">Módulo de valuación</p>
+        <h2>2. ¿Qué dilución implica financiar ese plan?</h2>
+      </div>
+      <p>El monto calculado puede sincronizarse con First Chicago o sustituirse por una cifra de negociación.</p>
+    </section>
+
+    <section class="shell module-grid">
+      <section class="panel calculator-panel valuation-inputs">
+        <div class="section-heading">
+          <div><p class="step">Supuestos generales</p><h2>Valuación First Chicago</h2></div>
+          <label class="sync-control"><input id="syncInvestment" type="checkbox" checked><span>Usar ronda objetivo calculada</span></label>
+        </div>
+
+        <div class="form-grid form-grid-2">
+          <label class="field">
+            <span id="baseMetricLabel">TPV anual actual</span>
+            <input id="baseMetric" type="number" min="0" step="1000" value="250000000">
+            <small id="baseMetricHelp">Volumen total de pagos procesados en el último año.</small>
+          </label>
+          <label class="field">
+            <span>Capital de la ronda</span>
+            <input id="investment" type="number" min="0" step="1000" value="15000000" readonly>
+            <small id="investmentHelp">Sincronizado con el capital requerido.</small>
+          </label>
+          <label class="field">
+            <span>Horizonte de salida</span>
+            <div class="input-suffix"><input id="years" type="number" min="1" max="15" step="1" value="5"><em>años</em></div>
+          </label>
+          <label class="field">
+            <span>Tasa de descuento exigida</span>
+            <div class="input-suffix"><input id="discountRate" type="number" min="0" max="200" step="0.1" value="35"><em>%</em></div>
+          </label>
+        </div>
+
+        <div class="section-heading scenario-heading">
+          <div><p class="step">Tres escenarios</p><h2>Supuestos de salida</h2></div>
+          <div class="probability-status" id="probabilityStatus" role="status" aria-live="polite">Probabilidad total: 100%</div>
+        </div>
+
+        <div class="scenario-grid">
+          <fieldset class="scenario-card scenario-upside">
+            <legend>Optimista</legend>
+            <label class="field compact"><span>Crecimiento anual</span><div class="input-suffix"><input data-field="growth" data-scenario="upside" type="number" min="-100" max="500" step="0.1" value="85"><em>%</em></div></label>
+            <label class="field compact"><span id="monetizationLabelUpside">Take rate final</span><div class="input-suffix"><input data-field="monetization" data-scenario="upside" type="number" min="0" max="100" step="0.01" value="2"><em>%</em></div></label>
+            <label class="field compact"><span>Múltiplo de salida</span><div class="input-suffix"><input data-field="multiple" data-scenario="upside" type="number" min="0" max="100" step="0.1" value="12"><em>x</em></div></label>
+            <label class="field compact"><span>Probabilidad</span><div class="input-suffix"><input data-field="probability" data-scenario="upside" type="number" min="0" max="100" step="0.1" value="25"><em>%</em></div></label>
+          </fieldset>
+
+          <fieldset class="scenario-card scenario-base">
+            <legend>Base</legend>
+            <label class="field compact"><span>Crecimiento anual</span><div class="input-suffix"><input data-field="growth" data-scenario="base" type="number" min="-100" max="500" step="0.1" value="50"><em>%</em></div></label>
+            <label class="field compact"><span id="monetizationLabelBase">Take rate final</span><div class="input-suffix"><input data-field="monetization" data-scenario="base" type="number" min="0" max="100" step="0.01" value="1.8"><em>%</em></div></label>
+            <label class="field compact"><span>Múltiplo de salida</span><div class="input-suffix"><input data-field="multiple" data-scenario="base" type="number" min="0" max="100" step="0.1" value="7"><em>x</em></div></label>
+            <label class="field compact"><span>Probabilidad</span><div class="input-suffix"><input data-field="probability" data-scenario="base" type="number" min="0" max="100" step="0.1" value="55"><em>%</em></div></label>
+          </fieldset>
+
+          <fieldset class="scenario-card scenario-downside">
+            <legend>Pesimista</legend>
+            <label class="field compact"><span>Crecimiento anual</span><div class="input-suffix"><input data-field="growth" data-scenario="downside" type="number" min="-100" max="500" step="0.1" value="10"><em>%</em></div></label>
+            <label class="field compact"><span id="monetizationLabelDownside">Take rate final</span><div class="input-suffix"><input data-field="monetization" data-scenario="downside" type="number" min="0" max="100" step="0.01" value="1.2"><em>%</em></div></label>
+            <label class="field compact"><span>Múltiplo de salida</span><div class="input-suffix"><input data-field="multiple" data-scenario="downside" type="number" min="0" max="100" step="0.1" value="2"><em>x</em></div></label>
+            <label class="field compact"><span>Probabilidad</span><div class="input-suffix"><input data-field="probability" data-scenario="downside" type="number" min="0" max="100" step="0.1" value="20"><em>%</em></div></label>
+          </fieldset>
+        </div>
+      </section>
+
+      <aside class="results-column" aria-label="Resultados de valuación">
+        <section class="panel results-panel valuation-results">
+          <div class="section-heading">
+            <div><p class="step">Resultado de valuación</p><h2 id="resultTitle">Mi Startup</h2></div>
+            <span class="model-badge" id="modelBadge">Fintech / Payments</span>
+          </div>
+
+          <article class="hero-kpi dark-kpi">
+            <span>Valuación pre-money</span>
+            <strong id="preMoneyValue">$0</strong>
+            <small>Valor estimado antes de recibir la ronda.</small>
+          </article>
+
+          <div class="kpi-grid compact-kpis">
+            <article class="kpi"><span>Post-money</span><strong id="postMoneyValue">$0</strong></article>
+            <article class="kpi"><span>Equity inversionista</span><strong id="equityValue">0%</strong></article>
+            <article class="kpi"><span>Fundadores después</span><strong id="founderValue">0%</strong></article>
+            <article class="kpi"><span>MOIC teórico</span><strong id="moicValue">0.00x</strong></article>
+          </div>
+
+          <div class="health-card" id="valuationHealthCard">
+            <div><span class="health-label">Lectura de la ronda</span><strong id="valuationHealthTitle">Calculando...</strong></div>
+            <p id="valuationHealthText"></p>
+          </div>
+
+          <div class="mini-chart" aria-label="Valor ponderado por escenario">
+            <div class="chart-heading"><h3>Contribución a la valuación</h3><small>Valor presente ponderado</small></div>
+            <div class="bar-row"><span>Optimista</span><div class="bar-track"><i id="barUpside"></i></div><strong id="barValueUpside">$0</strong></div>
+            <div class="bar-row"><span>Base</span><div class="bar-track"><i id="barBase"></i></div><strong id="barValueBase">$0</strong></div>
+            <div class="bar-row"><span>Pesimista</span><div class="bar-track"><i id="barDownside"></i></div><strong id="barValueDownside">$0</strong></div>
+          </div>
+        </section>
+
+        <section class="panel insight-panel">
+          <h2>Indicadores adicionales</h2>
+          <dl class="insight-list">
+            <div><dt>Valor de salida esperado</dt><dd id="expectedExitValue">$0</dd></div>
+            <div><dt>Factor de descuento</dt><dd id="discountFactorValue">0.00x</dd></div>
+            <div><dt>Capital / pre-money</dt><dd id="capitalToValuationValue">0%</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </section>
+
+    <section class="shell panel round-panel" id="ronda">
+      <div class="section-heading">
+        <div><p class="step">Diagnóstico integrado</p><h2>3. Consistencia de la ronda</h2></div>
+        <span class="round-status" id="roundStatus">Analizando</span>
+      </div>
+      <div class="round-grid">
+        <article class="round-comparison">
+          <span>Capital mínimo calculado</span><strong id="roundMinimumValue">$0</strong><small>Necesidad financiera neta.</small>
+        </article>
+        <article class="round-comparison featured">
+          <span>Capital usado en valuación</span><strong id="roundInvestmentValue">$0</strong><small id="roundDifferenceText">Sin diferencia.</small>
+        </article>
+        <article class="round-comparison">
+          <span>Dilución estimada</span><strong id="roundEquityValue">0%</strong><small id="roundEquityText">Porcentaje de la compañía.</small>
+        </article>
+      </div>
+      <div class="diagnostic-card" id="roundDiagnostic">
+        <strong id="roundDiagnosticTitle">Calculando...</strong>
+        <p id="roundDiagnosticText"></p>
+      </div>
+    </section>
+
+    <section class="shell panel detail-panel">
+      <div class="section-heading">
+        <div><p class="step">Detalle</p><h2>Desglose First Chicago</h2></div>
+        <p class="formula-note">Valor ponderado = valor de salida ÷ factor de descuento × probabilidad</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Escenario</th><th id="metricFinalHeader">TPV final</th><th>Ingresos finales</th><th>Valor de salida</th><th>Valor presente</th><th>Probabilidad</th><th>Valor ponderado</th></tr></thead>
+          <tbody id="resultsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="shell methodology-grid">
+      <article class="panel explainer">
+        <p class="step">Fórmula de capital</p>
+        <h2>Cómo se determina la ronda objetivo</h2>
+        <p><strong>Capital requerido = gastos recurrentes + inversiones iniciales + contingencia − ingresos proyectados − efectivo disponible − capital comprometido.</strong></p>
+        <p>La ronda objetivo redondea el capital mínimo hacia arriba para facilitar la planeación y evitar solicitar una cifra artificialmente exacta.</p>
+      </article>
+      <article class="panel explainer warning-explainer">
+        <p class="step">Límites del MVP</p>
+        <h2>Qué debe revisarse antes de negociar</h2>
+        <p>No modela impuestos, capital de trabajo por cobranza, deuda, SAFE, notas convertibles, preferencias de liquidación, stock options, rondas futuras ni derechos de control.</p>
+      </article>
+    </section>
+
+
+    <section class="print-report print-page print-page-1" aria-hidden="true">
+      <div class="print-page-header">
+        <img src="assets/licitia-logo.jpg" alt="LicitIA" class="print-page-logo">
+        <div class="print-page-headtext">
+          <small>Reporte ejecutivo de valuación</small>
+          <strong>¿Cuanto vale tu Startup?</strong>
+          <span id="printDatePage1">—</span>
+        </div>
+      </div>
+
+      <div class="print-title-block">
+        <h1>¿Cuanto vale tu Startup?</h1>
+        <p>Capital requerido, capacidad operativa, uso de fondos y dilución estimada.</p>
+      </div>
+
+      <div class="print-meta-grid">
+        <article><span>Startup</span><strong id="printStartupName">Mi Startup</strong></article>
+        <article><span>Modelo</span><strong id="printBusinessModel">Fintech / Payments</strong></article>
+        <article><span>Moneda</span><strong id="printCurrencyLabel">MXN</strong></article>
+        <article><span>Fecha</span><strong id="printReportDate">—</strong></article>
+      </div>
+
+      <div class="print-kpi-grid">
+        <article class="print-kpi featured"><span>Valuación pre-money</span><strong id="printPreMoneyValue">$0</strong><small>Valor previo a la ronda.</small></article>
+        <article class="print-kpi"><span>Post-money</span><strong id="printPostMoneyValue">$0</strong><small>Valor posterior a la inversión.</small></article>
+        <article class="print-kpi"><span>Equity cedido</span><strong id="printEquityValue">0%</strong><small>Participación del inversionista.</small></article>
+        <article class="print-kpi"><span>Fundadores después</span><strong id="printFounderValue">0%</strong><small>Participación remanente.</small></article>
+      </div>
+
+      <div class="print-two-col">
+        <section class="print-box">
+          <div class="print-box-head"><h2>Capital y operación</h2><small>Horizonte financiero</small></div>
+          <dl class="print-list dense">
+            <div><dt>Ronda objetivo</dt><dd id="printTargetRaiseValue">$0</dd></div>
+            <div><dt>Capital mínimo</dt><dd id="printCapitalRequiredValue">$0</dd></div>
+            <div><dt>Burn rate bruto</dt><dd id="printGrossBurnValue">$0</dd></div>
+            <div><dt>Burn rate neto actual</dt><dd id="printNetBurnValue">$0</dd></div>
+            <div><dt>Runway actual</dt><dd id="printRunwayValue">0 meses</dd></div>
+            <div><dt>Break-even estimado</dt><dd id="printBreakEvenValue">—</dd></div>
+            <div><dt>Ingresos proyectados</dt><dd id="printProjectedRevenueValue">$0</dd></div>
+            <div><dt>Ingreso mensual final</dt><dd id="printEndingRevenueValue">$0</dd></div>
+          </dl>
+        </section>
+
+        <section class="print-box">
+          <div class="print-box-head"><h2>Uso de fondos</h2><small>Distribución total</small></div>
+          <dl class="print-list dense" id="printUseOfFundsList"></dl>
+        </section>
+      </div>
+
+      <div class="print-two-col bottom-block">
+        <section class="print-box">
+          <div class="print-box-head"><h2>Hitos financiados</h2><small id="printMilestoneHorizon">—</small></div>
+          <ol class="print-milestones" id="printMilestonesList"></ol>
+        </section>
+        <section class="print-box">
+          <div class="print-box-head"><h2>Diagnóstico de la ronda</h2><small>Consistencia financiera</small></div>
+          <div class="print-status-wrap">
+            <span class="print-status" id="printRoundStatus">Analizando</span>
+            <strong id="printDiagnosticTitle">Calculando...</strong>
+            <p id="printDiagnosticText"></p>
+          </div>
+        </section>
+      </div>
+
+      <div class="print-footnote">
+        <p><strong>LicitIA.</strong> Documento informativo. No sustituye asesoría financiera, fiscal, legal ni de inversión.</p>
+      </div>
+    </section>
+
+    <section class="print-report print-page print-page-2" aria-hidden="true">
+      <div class="print-page-header">
+        <img src="assets/licitia-logo.jpg" alt="LicitIA" class="print-page-logo">
+        <div class="print-page-headtext">
+          <small>Detalle técnico</small>
+          <strong>First Chicago · escenarios y consistencia de la ronda</strong>
+          <span id="printHeaderStartup">Mi Startup</span>
+        </div>
+      </div>
+
+      <div class="print-second-grid top-variables">
+        <section class="print-box">
+          <div class="print-box-head"><h2>Variables globales</h2><small>Supuestos de valuación</small></div>
+          <dl class="print-list dense">
+            <div><dt id="printBaseMetricLabel">Métrica base actual</dt><dd id="printBaseMetricValue">$0</dd></div>
+            <div><dt>Horizonte de salida</dt><dd id="printYearsValue">0 años</dd></div>
+            <div><dt>Tasa de descuento</dt><dd id="printDiscountRateValue">0%</dd></div>
+            <div><dt>Monto de inversión</dt><dd id="printInvestmentValue">$0</dd></div>
+            <div><dt>Valor de salida esperado</dt><dd id="printExpectedExitValue">$0</dd></div>
+          </dl>
+        </section>
+        <section class="print-box">
+          <div class="print-box-head"><h2>Indicadores de inversión</h2><small>Lectura de retorno</small></div>
+          <dl class="print-list dense">
+            <div><dt>Factor de descuento</dt><dd id="printDiscountFactorValue">0.00x</dd></div>
+            <div><dt>Capital / pre-money</dt><dd id="printCapitalToValuationValue">0%</dd></div>
+            <div><dt>MOIC teórico</dt><dd id="printMoicValue">0.00x</dd></div>
+            <div><dt>Probabilidad total</dt><dd id="printProbabilityStatus">100%</dd></div>
+            <div><dt>Capital usado / mínimo</dt><dd id="printCapitalCoverageValue">—</dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <section class="print-box table-box">
+        <div class="print-box-head"><h2>Desglose First Chicago</h2><small>Valor ponderado = valor presente × probabilidad</small></div>
+        <div class="print-table-wrap">
+          <table class="print-table">
+            <thead><tr><th>Escenario</th><th>Crec.</th><th>Monet.</th><th>Múlt.</th><th id="printMetricFinalHeader">Métrica final</th><th>Ingresos finales</th><th>Valor de salida</th><th>Valor presente</th><th>Prob.</th><th>Ponderado</th></tr></thead>
+            <tbody id="printResultsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="print-second-grid compact-bottom">
+        <section class="print-box">
+          <div class="print-box-head"><h2>Contribución por escenario</h2><small>Valor presente ponderado</small></div>
+          <dl class="print-list dense">
+            <div><dt>Optimista</dt><dd id="printBarValueUpside">$0</dd></div>
+            <div><dt>Base</dt><dd id="printBarValueBase">$0</dd></div>
+            <div><dt>Pesimista</dt><dd id="printBarValueDownside">$0</dd></div>
+          </dl>
+        </section>
+        <section class="print-box">
+          <div class="print-box-head"><h2>Consistencia de la ronda</h2><small>Capital y dilución</small></div>
+          <dl class="print-list dense">
+            <div><dt>Capital mínimo</dt><dd id="printRoundMinimumValue">$0</dd></div>
+            <div><dt>Capital en valuación</dt><dd id="printRoundInvestmentValue">$0</dd></div>
+            <div><dt>Dilución estimada</dt><dd id="printRoundEquityValue">0%</dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <div class="print-second-grid notes-block">
+        <section class="print-box">
+          <div class="print-box-head"><h2>Fórmula de capital</h2><small>Planeación</small></div>
+          <p class="print-paragraph"><strong>Capital requerido = gastos recurrentes + inversiones iniciales + contingencia - ingresos proyectados - efectivo disponible - capital comprometido.</strong></p>
+        </section>
+        <section class="print-box">
+          <div class="print-box-head"><h2>Límites del modelo</h2><small>MVP</small></div>
+          <p class="print-paragraph">No modela impuestos, capital de trabajo por cobranza, SAFE, notas convertibles, preferencias de liquidación, stock options, deuda, rondas futuras ni derechos de control.</p>
+        </section>
+      </div>
+
+      <div class="print-footnote">
+        <p>Metodología First Chicago: valor presente de cada escenario multiplicado por su probabilidad. Los resultados dependen de los supuestos capturados por el usuario.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer shell">
+    <div><strong>LicitIA Labs</strong><p>Inteligencia aplicada para convertir ideas en proyectos financiables.</p></div>
+    <small>© 2026 LicitIA Labs. Todos los derechos reservados.</small>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
