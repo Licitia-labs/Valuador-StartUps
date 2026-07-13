@@ -18,8 +18,6 @@ Calcula:
 - Distribución del uso de fondos
 - Hitos financiados por la ronda
 
-
-
 # Glosario de términos financieros para startups
 
 **Burn Rate — Tasa de consumo de efectivo**
@@ -155,8 +153,6 @@ Proceso mediante el cual se estima cuánto vale una empresa emergente consideran
 
 **Venture Capital — Capital de riesgo**
 Financiamiento proporcionado por fondos especializados a startups con alto potencial de crecimiento, a cambio de participación accionaria.
-
-
 
 ## Límites del MVP
 
